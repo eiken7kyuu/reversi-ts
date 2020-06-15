@@ -1,10 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import Game from './components/Game';
 
-const App: React.FC = () => {
-  return (
-    <h1>Osero</h1>
-  );
-};
-
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<Game />, document.getElementById('root'));

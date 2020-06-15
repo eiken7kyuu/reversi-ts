@@ -17,9 +17,13 @@ module.exports = {
 
   module: {
     rules: [
+      // css
+      { test: /\.(css|scss)$/, loader: ['style-loader', 'css-loader', 'sass-loader'] },
+
+      // js, ts, tsx
       {
         test: /\.(js|ts|tsx)$/,
-        exclude: /node_modules/,
+        exclude: /(node_modules|tests)/,
 
         use: [
           {
@@ -38,13 +42,12 @@ module.exports = {
               ]
             }
           },
-
           {
             loader: 'ts-loader',
             options: {
               transpileOnly: true
             }
-          }
+          },
         ]
       }
     ]
@@ -55,7 +58,7 @@ module.exports = {
   })],
 
   devServer: {
-    contentBase: path.join(__dirname, 'src'),
+    contentBase: path.join(__dirname),
     compress: true,
     port: 8080
   }
