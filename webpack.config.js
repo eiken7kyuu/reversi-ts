@@ -8,7 +8,7 @@ module.exports = {
 
   output: {
     filename: 'bundle.js',
-    path: path.join(__dirname, './src')
+    path: path.join(__dirname, './public')
   },
 
   resolve: {
@@ -58,8 +58,9 @@ module.exports = {
   })],
 
   devServer: {
-    contentBase: path.join(__dirname),
+    contentBase: path.join(__dirname, 'public'),
     compress: true,
-    port: 8080
+    port: 8080,
+    watchContentBase: true
   }
 };

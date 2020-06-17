@@ -65,7 +65,7 @@ const Game: React.FC = () => {
 
     // 相手の番で置けないとき
     if (!canPut()) {
-      setMessage('置ける場所がないからパス');
+      setMessage(`${(isBlackPlayer ? '黒' : '白')}は置ける場所がないからパスした`);
       setIsBlackPlayer(!isBlackPlayer);
       setTurnText(isBlackPlayer ? '白の番' : '黒の番');
       return;
@@ -183,11 +183,11 @@ const Game: React.FC = () => {
 
       setMessage('');
       tmpBoard[pos.y][pos.x] = myDisk();
-
       reverse(reverseList);
       setBoard(tmpBoard);
       setIsBlackPlayer(!isBlackPlayer);
       setTurnText(isBlackPlayer ? '白の番' : '黒の番');
+
     };
   }
 
