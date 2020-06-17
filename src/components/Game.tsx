@@ -22,7 +22,7 @@ const directions: Pair[] = [
 
 // 置いた場所と方向を引数に、1ラインの座標を取得する
 export function getLine(putPos: Pair, dire: Pair): Pair[] {
-  let line = [];
+  const line = [];
   let x = putPos.x + dire.x;
   let y = putPos.y + dire.y;
 
@@ -36,10 +36,6 @@ export function getLine(putPos: Pair, dire: Pair): Pair[] {
   return line;
 }
 
-function getLines(putPos: Pair) {
-  return directions.map(dire => getLine(putPos, dire));
-}
-
 function initBoard() {
   const board = Array.from(new Array<Disk>(8), () => new Array<Disk>(8).fill('None'));
   board[3][3] = 'White';
@@ -50,16 +46,38 @@ function initBoard() {
 }
 
 const Game: React.FC = () => {
-
   const [isBlackPlayer, setIsBlackPlayer] = useState(true);
   const [board, setBoard] = useState<Disk[][]>(initBoard());
   const [turnText, setTurnText] = useState(nextTurnText());
   const [message, setMessage] = useState('');
+  const [result, setResult] = useState('');
+
+  const rivalDisk = () => isBlackPlayer ? 'White' : 'Black';
+  const myDisk = () => isBlackPlayer ? 'Black' : 'White';
+
+  function gameSet() {
+    return board.flatMap(x => x.filter(disk => disk !== 'None')).length === 64;
+  }
+
+  function nextTurnText() {
+    return isBlackPlayer ? '黒の番' : '白の番';
+  }
+
+  function diskCount(): { whiteCount: number, blackCount: number } {
+    return {
+      whiteCount: board.flatMap(x => x.filter(disk => disk === 'White')).length,
+      blackCount: board.flatMap(x => x.filter(disk => disk === 'Black')).length,
+    };
+  }
 
   // 順番が更新されたタイミングで発火させる
   useEffect(() => {
+    const { whiteCount, blackCount } = diskCount()
+    setResult(`黒 = ${blackCount}, 白 = ${whiteCount}`);
+    setTurnText(nextTurnText());
+
     if (gameSet()) {
-      result();
+      showResult();
       return;
     }
 
@@ -67,52 +85,41 @@ const Game: React.FC = () => {
     if (!canPut()) {
       setMessage(`${(isBlackPlayer ? '黒' : '白')}は置ける場所がないからパスした`);
       setIsBlackPlayer(!isBlackPlayer);
-      setTurnText(isBlackPlayer ? '白の番' : '黒の番');
       return;
     }
 
   }, [isBlackPlayer]);
 
-  const rivalDisk = () => isBlackPlayer ? 'White' : 'Black';
-  const myDisk = () => isBlackPlayer ? 'Black' : 'White';
-
-  // 名前変更
-  function nextTurnText() {
-    return isBlackPlayer ? '黒の番' : '白の番';
-  }
-
   // 結果表示
-  function result() {
-    const whiteCount = board.flatMap(x => x.filter(disk => disk === 'White')).length;
-    const blackCount = board.flatMap(x => x.filter(disk => disk === 'Black')).length;
+  function showResult() {
+    const { whiteCount, blackCount } = diskCount();
+    const countText = `黒 = ${blackCount}, 白 = ${whiteCount}`;
 
-    if (whiteCount > blackCount) {
-      setMessage(`黒 = ${blackCount}, 白 = ${whiteCount}: 白の勝ち`);
-    } else if (whiteCount === blackCount) {
-      setMessage(`黒 = ${blackCount}, 白 = ${whiteCount}: 引き分け`);
-    } else {
-      setMessage(`黒 = ${blackCount}, 白 = ${whiteCount}: 黒の勝ち`);
-    }
+    const resultText = (() => {
+      if (whiteCount > blackCount) {
+        return `${countText}: 白の勝ち`;
+      } else if (whiteCount === blackCount) {
+        return `${countText}: 引き分け`;
+      } else {
+        return `${countText}: 黒の勝ち`;
+      }
+    })();
 
+    setResult(resultText);
     setTurnText('');
   }
 
-  function gameSet() {
-    return board.slice().flatMap(x => x.filter(disk => disk !== 'None')).length === 64;
-  }
-
-
   // ひっくり返せる場所のリストを返す
   function getReverseDiskPosition(putPosition: Pair) {
-    const tmpBoard = board.slice();
     const reverseList: Pair[][] = [];
 
-    for (const line of getLines(putPosition)) {
+    // 置いた場所から8方向のラインの座標をチェック
+    for (const line of directions.map(dire => getLine(putPosition, dire))) {
       const list: Pair[] = [];
 
       for (let i = 0; i < line.length; i++) {
         const position = line[i];
-        const lineDisk = tmpBoard[position.y][position.x]; // ライン上にある石
+        const lineDisk = board[position.y][position.x]; // ライン上にある石
 
         // 1ラインでひっくり返すものがない
         if (lineDisk === 'None' || 
@@ -137,10 +144,9 @@ const Game: React.FC = () => {
 
   // 置ける場所があるかチェックする
   function canPut(): boolean {
-    const tmpBoard = board.slice();
     for (let y = 0; y < board.length; y++) {
       for (let x = 0; x < board[y].length; x++) {
-        if (tmpBoard[y][x] !== 'None') continue;
+        if (board[y][x] !== 'None') continue;
 
         const reverseList = getReverseDiskPosition({ x: x, y: y });
         if (reverseList.length > 0) {
@@ -169,7 +175,7 @@ const Game: React.FC = () => {
       const tmpBoard = board.slice();
 
       if (gameSet()) {
-        result();
+        showResult();
         return;
       }
 
@@ -177,17 +183,15 @@ const Game: React.FC = () => {
       if (tmpBoard[pos.y][pos.x] !== 'None' ||
           (tmpBoard[pos.y][pos.x] === 'None' && reverseList.length <= 0)
       ) {
-        setMessage('そこにはおけないよ');
+        setMessage('そこは置けません');
         return;
       }
 
-      setMessage('');
-      tmpBoard[pos.y][pos.x] = myDisk();
+      reverseList.push({ x: pos.x, y: pos.y });
       reverse(reverseList);
-      setBoard(tmpBoard);
-      setIsBlackPlayer(!isBlackPlayer);
-      setTurnText(isBlackPlayer ? '白の番' : '黒の番');
 
+      setMessage('');
+      setIsBlackPlayer(!isBlackPlayer);
     };
   }
 
@@ -195,12 +199,13 @@ const Game: React.FC = () => {
     return (<Square 
               key={`${pos.y}${pos.x}`}
               clickHandle={clickHandle(pos)}
-              disk={board[pos.y][pos.x]} 
+              disk={board[pos.y][pos.x]}
             />);
   }
 
   return (
-    <div>
+    <div className="container">
+      <h1 className="title">オセロ</h1>
       <div className="board">
         {
           Array.from(new Array(8), () => new Array(8).fill(0))
@@ -219,7 +224,7 @@ const Game: React.FC = () => {
       </div>
 
       <div className="info">
-        <div className="turn">{turnText}</div>
+        <div className="turn">{turnText}<br/><span className="result">{result}</span></div>
         <div className="message">{message}</div>
       </div>
     </div>
