@@ -1,0 +1,1 @@
+React + TypeScriptで作った一人オセロです。
