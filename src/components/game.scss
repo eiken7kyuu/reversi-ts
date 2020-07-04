@@ -1,0 +1,67 @@
+.container {
+  width: 560px;
+  height: 100%;
+  margin: 20px auto;
+  
+  .title {
+    margin-bottom: 15px;
+    font-weight: normal;
+    font-size: 2.0rem;
+  }
+
+  .board {
+    padding-top: 30px;
+  }
+
+  .room-id {
+    font-size: 1.3rem;
+    text-align: center;
+  }
+
+  .row {
+    display: flex;
+  }
+  
+  .info {
+    margin: 15px auto;
+    font-size: 1.2rem;
+
+    .disk-count {
+      font-size: 1.8rem;
+      text-align: center;
+    }
+
+    .your-color {
+      margin-top: 30px;
+    }
+    
+    .rival {
+      margin-top: 15px;
+    }
+
+    .turn {
+      margin: 20px auto;
+    }
+  
+    .message {
+      height: 30px;
+      text-align: center;
+      margin-top: 30px;
+      font-size: 1.8rem;
+    }
+  }
+}
+  
+@media screen and (max-width: 480px) {
+  .container {
+    width: 360px;
+
+    .board {
+      margin: 0 auto;
+    }
+
+    .info {
+      font-size: 1rem;
+    }
+  }
+}

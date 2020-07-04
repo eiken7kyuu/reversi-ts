@@ -21,6 +21,7 @@
     "babel-loader": "^8.1.0",
     "core-js": "^3.6.5",
     "css-loader": "^3.5.3",
+    "firebase": "^7.15.3",
     "fork-ts-checker-webpack-plugin": "^4.1.6",
     "jest": "^26.0.1",
     "react": "^16.13.1",

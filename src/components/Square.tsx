@@ -9,7 +9,7 @@ type SquareProps = {
 const Square: React.FC<SquareProps> = ({ disk, clickHandle }) => {
   return (
     <button className="square" onClick={clickHandle}>
-      <div className={disk.toLowerCase()}></div>
+      <div className={`disk ${disk.toLowerCase()}`}></div>
     </button>
   );
 };

@@ -1,0 +1,25 @@
+.room {
+  margin: 80px auto;
+  text-align: center;
+
+  .create-room-button, .enter-room-button {
+    width: 90px;
+    height: 45px;
+  }
+
+  .room-id-text {
+    font-size: 1.3rem;
+    display: inline-block;
+    width: 100px;
+    height: 39px;
+  }
+
+  .title {
+    font-size: 1.8rem;
+    margin-bottom: 30px;
+  }
+
+  .create {
+    margin-bottom: 30px;
+  }
+}
