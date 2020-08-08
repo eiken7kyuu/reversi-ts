@@ -1,5 +1,5 @@
 const path = require('path');
-const ForkTsChecker = require('fork-ts-checker-webpack-plugin')
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
 
 module.exports = {
@@ -35,7 +35,7 @@ module.exports = {
                 ["@babel/preset-env", {
                   'useBuiltIns': 'usage',
                   'corejs': 3
-                  }
+                }
                 ],
 
                 "@babel/preset-react"
@@ -53,9 +53,13 @@ module.exports = {
     ]
   },
 
-  plugins: [new ForkTsChecker({
-    tsconfig: path.join(__dirname, './tsconfig.json')
-  })],
+  plugins: [
+    new ForkTsCheckerWebpackPlugin({
+      typescript: {
+        configFile: path.join(__dirname, './tsconfig.json')
+      }
+    }),
+  ],
 
   devServer: {
     contentBase: path.join(__dirname, 'public'),
