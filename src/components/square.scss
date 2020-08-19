@@ -24,6 +24,12 @@
     box-shadow: inset 0 2px 0 #000, 0 2px 2px rgba(0, 0, 0, 0.19);
     border-bottom: solid 2px #000;
   }
+
+  &.cannot-put {
+    transition: 0.5s;
+    background: #e44646;
+  }
+
 }
 
 @media screen and (max-width: 480px) {

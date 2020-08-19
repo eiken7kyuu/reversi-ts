@@ -1,4 +1,4 @@
-import { Disk, initBoard } from './reversi';
+import { initBoard, Board } from './reversi';
 
 export type Data = {
   roomId: string;
@@ -6,13 +6,16 @@ export type Data = {
   roomInfo: RoomInfo;
 }
 
+export type Status = 'running' | 'end' | '';
+
 // 同期データ 部屋情報
 export type RoomInfo = {
   host: string;
   guest: string;
   turn: string, // 'none' or 8桁の文字列
-  board: Disk[][],
-  status: 'waiting' | 'running' | 'end'
+  board: Board,
+  status: Status,
+  pass: string,
 }
 
 export function initData(): Data {
@@ -24,7 +27,8 @@ export function initData(): Data {
       guest: '',
       turn: 'none',
       board: initBoard(),
-      status: 'waiting',
+      status: '',
+      pass: '',
     },
   };
 }

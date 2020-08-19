@@ -1,5 +1,8 @@
 
-import { getLine, gameSet, Disk, initBoard, canPut, pass, getReverseList, reverse } from '../reversi';
+import {
+  getLine, gameSet, Disk, initBoard,
+  canPut, pass, getReverseList, reverse
+} from '../reversi';
 
 describe('getLine', () => {
   function test(line: { x: number, y: number }[], expected: { x: number, y: number }[]) {
@@ -10,49 +13,49 @@ describe('getLine', () => {
 
   it('左横', () => {
     const line = getLine({ x: 2, y: 4 }, { x: -1, y: 0 });
-    const expected = [ { x: 1, y: 4}, { x: 0, y: 4} ];
+    const expected = [{ x: 1, y: 4 }, { x: 0, y: 4 }];
     test(line, expected);
   });
 
   it('左上', () => {
     const line = getLine({ x: 2, y: 4 }, { x: -1, y: -1 });
-    const expected = [ { x: 1, y: 3 }, { x: 0, y: 2 } ];
+    const expected = [{ x: 1, y: 3 }, { x: 0, y: 2 }];
     test(line, expected);
   });
 
   it('上', () => {
     const line = getLine({ x: 2, y: 4 }, { x: 0, y: -1 });
-    const expected = [ { x: 2, y: 3 }, { x: 2, y: 2 }, { x: 2, y: 1 }, { x: 2, y: 0 } ];
+    const expected = [{ x: 2, y: 3 }, { x: 2, y: 2 }, { x: 2, y: 1 }, { x: 2, y: 0 }];
     test(line, expected);
   });
 
   it('右上', () => {
     const line = getLine({ x: 2, y: 4 }, { x: 1, y: -1 });
-    const expected = [ { x: 3, y: 3}, { x: 4, y: 2 }, { x: 5, y: 1 }, { x: 6, y: 0 } ];
+    const expected = [{ x: 3, y: 3 }, { x: 4, y: 2 }, { x: 5, y: 1 }, { x: 6, y: 0 }];
     test(line, expected);
   });
 
   it('右', () => {
     const line = getLine({ x: 2, y: 4 }, { x: 1, y: 0 });
-    const expected = [ { x: 3, y: 4 }, { x: 4, y: 4 }, { x: 5, y: 4 }, { x: 6, y: 4 }, { x: 7, y: 4 }];
+    const expected = [{ x: 3, y: 4 }, { x: 4, y: 4 }, { x: 5, y: 4 }, { x: 6, y: 4 }, { x: 7, y: 4 }];
     test(line, expected);
   });
 
   it('右下', () => {
     const line = getLine({ x: 2, y: 4 }, { x: 1, y: 1 });
-    const expected = [ { x: 3, y: 5 }, { x: 4, y: 6 }, { x: 5, y: 7 } ];
+    const expected = [{ x: 3, y: 5 }, { x: 4, y: 6 }, { x: 5, y: 7 }];
     test(line, expected);
   });
 
   it('下', () => {
     const line = getLine({ x: 2, y: 4 }, { x: 0, y: 1 });
-    const expected = [ { x: 2, y: 5 }, { x: 2, y: 6 }, { x: 2, y: 7 }];
+    const expected = [{ x: 2, y: 5 }, { x: 2, y: 6 }, { x: 2, y: 7 }];
     test(line, expected);
   });
 
   it('左下', () => {
     const line = getLine({ x: 2, y: 4 }, { x: -1, y: 1 });
-    const expected = [ { x: 1, y: 5 }, { x: 0, y: 6 } ];
+    const expected = [{ x: 1, y: 5 }, { x: 0, y: 6 }];
     test(line, expected);
   });
 });
@@ -71,7 +74,7 @@ describe('gameSet', () => {
     expect(gameSet(filled2)).toBeTruthy();
   });
 
-  it('どちらか一色のみになってゲーム終了', () => {
+  it('ボードが1色', () => {
     const whiteOnly = Array.from(new Array<Disk>(8), () => new Array<Disk>(8).fill('White'));
     const blackOnly = Array.from(new Array<Disk>(8), () => new Array<Disk>(8).fill('Black'));
 
@@ -85,17 +88,16 @@ describe('gameSet', () => {
 
   it('ゲーム中', () => {
     const board1 = initBoard();
-    const board2 = Array.from(new Array<Disk>(8), () => new Array<Disk>(8).fill('Black'));
-    board2[0][2] = 'White';
-    board2[4][0] = 'None';
-    board2[3][2] = 'White';
-    board2[6][0] = 'None';
+    const board2 = initBoard();
+    board2[5][4] = 'Black';
+    board2[4][4] = 'Black';
+    board2[5][3] = 'White';
+    board2[4][3] = 'White';
 
     expect(gameSet(board1)).toBeFalsy();
     expect(gameSet(board2)).toBeFalsy();
   });
 });
-
 
 describe('canPut', () => {
   it('置ける', () => {

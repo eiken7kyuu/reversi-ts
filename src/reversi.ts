@@ -1,11 +1,12 @@
 export type Disk = 'White' | 'Black' | 'None';
+export type Board = Disk[][];
 
 export type Pair = {
   x: number;
   y: number;
 };
 
-const directions: Pair[] = [ 
+const directions: Pair[] = [
   { x: -1, y: 0 }, // 左横
   { x: -1, y: -1 }, // 左横
   { x: 0, y: -1 }, // 上
@@ -22,7 +23,7 @@ function isBoardRange(position: Pair) {
   return position.x >= 0 && position.x <= 7 && position.y >= 0 && position.y <= 7;
 }
 
-export function initBoard() {
+export function initBoard(): Board {
   const board = Array.from(new Array<Disk>(8), () => new Array<Disk>(8).fill('None'));
   board[3][3] = 'White';
   board[4][4] = 'White';
@@ -48,15 +49,12 @@ export function getLine(putPos: Pair, dire: Pair): Pair[] {
 }
 
 // ゲーム終了判定
-// ボードがすべて埋まるか、 どちらか一色のみになったら終了
-export function gameSet(board: Disk[][]) {
-  const isFilled = board.flatMap(x => x.filter(disk => disk !== 'None')).length === 64;
-  const isOneColor = board.flatMap(x => x).every(disk => disk !== 'White') ||
-                      board.flatMap(x => x).every(disk => disk !== 'Black');
-  return isFilled || isOneColor;
+// お互い置けなくなったら終了
+export function gameSet(board: Board) {
+  return pass(board, 'Black') && pass(board, 'White');
 }
 
-export function diskCount(board: Disk[][]): { whiteCount: number, blackCount: number } {
+export function diskCount(board: Board): { whiteCount: number, blackCount: number } {
   return {
     whiteCount: board.flatMap(x => x.filter(disk => disk === 'White')).length,
     blackCount: board.flatMap(x => x.filter(disk => disk === 'Black')).length,
@@ -64,14 +62,13 @@ export function diskCount(board: Disk[][]): { whiteCount: number, blackCount: nu
 }
 
 // 指定した場所が置ける場所か
-export function canPut(board: Disk[][], pos: Pair, myDisk: Disk): boolean {
+export function canPut(board: Board, pos: Pair, myDisk: Disk): boolean {
   const reverseList = getReverseList(board, pos, myDisk);
   return board[pos.y][pos.x] === 'None' && reverseList.length > 0;
 }
 
-
 // パスしないといけないかチェック
-export function pass(board: Disk[][], myDisk: Disk): boolean {
+export function pass(board: Board, myDisk: Disk): boolean {
   for (let y = 0; y < board.length; y++) {
     for (let x = 0; x < board[y].length; x++) {
       if (board[y][x] !== 'None') continue;
@@ -87,7 +84,7 @@ export function pass(board: Disk[][], myDisk: Disk): boolean {
 }
 
 // ひっくり返す位置のリストを返す
-export function getReverseList(board: Disk[][], putPosition: Pair, myDisk: Disk) {
+export function getReverseList(board: Board, putPosition: Pair, myDisk: Disk) {
   const reverseList: Pair[][] = [];
 
   if (!isBoardRange(putPosition)) {
@@ -105,9 +102,9 @@ export function getReverseList(board: Disk[][], putPosition: Pair, myDisk: Disk)
       const rival = rivalDisk(myDisk);
 
       // 1ラインでひっくり返すものがない
-      if (lineDisk === 'None' || 
-          (i === 0 && lineDisk === myDisk) ||
-          (i === line.length-1 && lineDisk === rival)) {
+      if (lineDisk === 'None' ||
+        (i === 0 && lineDisk === myDisk) ||
+        (i === line.length - 1 && lineDisk === rival)) {
         break;
       }
 
@@ -126,7 +123,7 @@ export function getReverseList(board: Disk[][], putPosition: Pair, myDisk: Disk)
 }
 
 // ボード、ひっくり返す位置、自分の色を渡して、ひっくり返したあとのボードを返す
-export function reverse(board: Disk[][], reverseList: Pair[], myDisk: Disk) {
+export function reverse(board: Board, reverseList: Pair[], myDisk: Disk): Board {
   const newBoard = board.slice();
   for (const position of reverseList) {
     newBoard[position.y][position.x] = myDisk;

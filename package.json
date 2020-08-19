@@ -21,6 +21,7 @@
     "babel-loader": "^8.1.0",
     "core-js": "^3.6.5",
     "css-loader": "^4.2.1",
+    "deepcopy": "^2.1.0",
     "firebase": "^7.17.2",
     "fork-ts-checker-webpack-plugin": "^5.0.14",
     "jest": "^26.2.2",

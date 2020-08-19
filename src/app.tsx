@@ -8,7 +8,6 @@ import { Data, RoomInfo, initData } from './multiPlay';
 import { listener } from './repository';
 
 const App: React.FC = () => {
-  const [view, setView] = useState<'room' | 'gameMulti'>('room');
   const [data, setData] = useState<Data>(initData());
 
   // firebaseデータの同期を開始する処理
@@ -26,12 +25,10 @@ const App: React.FC = () => {
     listener(roomId, callBack);
   }
 
-  return (
-    <div>
-      <Room view={view} changeView={() => setView('gameMulti')} doSync={doSync} />
-      <Game view={view} data={data} />
-    </div>
-  );
+  return (data.myId.length === 0
+    ? <Room doSync={doSync} />
+    : <Game data={data} />
+  )
 };
 
 ReactDOM.render(<App />, document.getElementById('root'));
