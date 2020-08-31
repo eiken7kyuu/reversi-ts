@@ -18,10 +18,9 @@ const Square: React.FC<SquareProps> = ({ disk, clickHandle, cannotPut }) => {
   }
 
   return (
-    <button className={`square ${cannotPutClass}`}
-      onClick={cannotPut ? addClass : clickHandle}>
+    <div className={`square ${cannotPutClass}`} onClick={cannotPut ? addClass : clickHandle}>
       <div className={`disk ${disk.toLowerCase()}`}></div>
-    </button>
+    </div>
   );
 };
 

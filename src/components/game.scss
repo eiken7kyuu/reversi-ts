@@ -1,5 +1,8 @@
+$yellowGreen: #00c853;
+$board: $yellowGreen;
+
 .container {
-  width: 560px;
+  width: 562px;
   height: 100%;
   margin: 20px auto;
   
@@ -10,18 +13,18 @@
   }
 
   .board {
-    padding-top: 30px;
+    background: $board;
+    display: flex;
+    flex-wrap: wrap;
+    border: 1px solid #000;
   }
 
   .room-id {
     font-size: 1.3rem;
     text-align: center;
+    margin: 30px auto;
   }
 
-  .row {
-    display: flex;
-  }
-  
   .info {
     margin: 15px auto;
     font-size: 1.2rem;
@@ -54,7 +57,7 @@
   
 @media screen and (max-width: 480px) {
   .container {
-    width: 360px;
+    width: 362px;
 
     .board {
       margin: 0 auto;

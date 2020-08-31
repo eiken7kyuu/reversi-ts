@@ -105,12 +105,11 @@ const GameMulti: React.FC<GameMultiProps> = ({ data }) => {
       />);
     }
 
-    const squares: JSX.Element[][] = [];
+    const squares: JSX.Element[] = [];
     for (let y = 0; y < 8; y++) {
-      const row = Array.from(new Array(8))
-        .map((_, xIndex) => square({ x: xIndex, y: y }));
-
-      squares.push(row);
+      for (let x = 0; x < 8; x++) {
+        squares.push(square({ x: x, y: y }));
+      }
     }
 
     return squares;

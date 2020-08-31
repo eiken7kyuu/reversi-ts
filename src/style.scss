@@ -1,9 +1,14 @@
-@import url('https://fonts.googleapis.com/css?family=Sawarabi+Gothic');
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap');
+$bodyColor: #f8f6f6;
+
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
 
 body {
-  font-family: 'Noto Sans', 'Sawarabi Gothic', sans-serif;
+  font-family: "游ゴシック体", "Yu Gothic", "Hiragino Kaku Gothic Pro", "ヒラギノ角ゴ Pro W3", メイリオ, Meiryo, sans-serif;
   font-size: 62.5%;
+  background: $bodyColor;
 }
 
 footer {
