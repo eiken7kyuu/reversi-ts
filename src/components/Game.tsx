@@ -4,8 +4,8 @@ import Square from './Square';
 import { Data } from '../multiPlay';
 import { setRoomInfo } from '../repository';
 import {
-  initBoard, Pair, gameSet, canPut,
-  getReverseList, reverse, pass, diskCount, Disk
+  initBoard, Position, gameSet, canPut,
+  getReverseList, reverse, pass, diskCount, BOARD_RANGE
 } from '../reversi';
 import Message from './Message';
 import deepcopy from 'deepcopy';
@@ -71,7 +71,7 @@ const GameMulti: React.FC<GameMultiProps> = ({ data }) => {
   }
 
   // マスをクリックしたときに動作する関数を返す
-  function clickHandle(pos: Pair): () => void {
+  function clickHandle(pos: Position): () => void {
     return () => {
       if (!(myTurn && board[pos.y][pos.x] === 'None'))
         return;
@@ -83,8 +83,7 @@ const GameMulti: React.FC<GameMultiProps> = ({ data }) => {
       newData.roomInfo.pass = '';
 
       if (gameSet(newData.roomInfo.board)) {
-        newData.roomInfo.status = 'end';
-        newData.roomInfo.turn = 'none';
+        [newData.roomInfo.status, newData.roomInfo.turn] = ['end', 'none'];
       }
 
       setRoomInfo(newData.roomId, newData.roomInfo);
@@ -92,7 +91,7 @@ const GameMulti: React.FC<GameMultiProps> = ({ data }) => {
   }
 
   function renderSquares() {
-    const square = (pos: Pair) => {
+    const square = (pos: Position) => {
       // 自分のターンで何も置いてないところなら置ける場所か検証
       const exp = data.roomInfo.turn === data.myId && board[pos.y][pos.x] === 'None';
       const cannotPut = exp ? !canPut(board, pos, myDisk()) : false;
@@ -105,14 +104,7 @@ const GameMulti: React.FC<GameMultiProps> = ({ data }) => {
       />);
     }
 
-    const squares: JSX.Element[] = [];
-    for (let y = 0; y < 8; y++) {
-      for (let x = 0; x < 8; x++) {
-        squares.push(square({ x: x, y: y }));
-      }
-    }
-
-    return squares;
+    return BOARD_RANGE.flatMap(y => BOARD_RANGE.map(x => square({ x: x, y: y })));
   }
 
   function renderMessage() {

@@ -1,30 +1,47 @@
 export type Disk = 'White' | 'Black' | 'None';
-export type Board = Disk[][];
 
-export type Pair = {
-  x: number;
-  y: number;
+type Repeat8<T extends readonly unknown[]> = [...T, ...T, ...T, ...T, ...T, ...T, ...T, ...T];
+type BoardRow = Repeat8<[Disk]>;
+export type Board = Repeat8<[BoardRow]>;
+
+export const BOARD_RANGE = [0, 1, 2, 3, 4, 5, 6, 7] as const;
+type BoardRange = (typeof BOARD_RANGE)[number];
+
+export type Position = {
+  x: BoardRange;
+  y: BoardRange;
 };
 
-const directions: Pair[] = [
-  { x: -1, y: 0 }, // 左横
-  { x: -1, y: -1 }, // 左横
-  { x: 0, y: -1 }, // 上
-  { x: 1, y: -1 }, // 右上
-  { x: 1, y: 0 }, // 右横
-  { x: 1, y: 1 }, // 右下
-  { x: 0, y: 1 }, // 下
-  { x: -1, y: 1 }  // 左下
-];
+export const DIRECTIONS = {
+  up: { x: 0, y: -1 },
+  down: { x: 0, y: 1 },
+  left: { x: -1, y: 0 },
+  right: { x: 1, y: 0 },
+  upLeft: { x: -1, y: -1 },
+  upRight: { x: 1, y: -1 },
+  downLeft: { x: -1, y: 1 },
+  downRight: { x: 1, y: 1 },
+} as const;
+
+type Direction = typeof DIRECTIONS;
+type DirectionKey = keyof Direction;
+
+const DIRECTION_KEYS: readonly DirectionKey[]
+  = ['up', 'down', 'left', 'right', 'upLeft', 'upRight', 'downLeft', 'downRight'] as const;
 
 const rivalDisk = (myDisk: Disk) => myDisk === 'Black' ? 'White' : 'Black';
 
-function isBoardRange(position: Pair) {
-  return position.x >= 0 && position.x <= 7 && position.y >= 0 && position.y <= 7;
+export function createFilledBoard(disk: Disk): Board {
+  const createBoardRow = (value: Disk): BoardRow => {
+    return [value, value, value, value, value, value, value, value];
+  }
+
+  const row = createBoardRow(disk);
+  return [[...row], [...row], [...row], [...row], [...row], [...row], [...row], [...row]];
 }
 
 export function initBoard(): Board {
-  const board = Array.from(new Array<Disk>(8), () => new Array<Disk>(8).fill('None'));
+  const board: Board = createFilledBoard('None');
   board[3][3] = 'White';
   board[4][4] = 'White';
   board[3][4] = 'Black';
@@ -32,17 +49,15 @@ export function initBoard(): Board {
   return board;
 }
 
-// 置いた場所と方向を引数に、1ラインの座標を取得する
-export function getLine(putPos: Pair, dire: Pair): Pair[] {
-  const line = [];
-  let x = putPos.x + dire.x;
-  let y = putPos.y + dire.y;
+// 置いた場所から指定した方向にあるマス(ボードの範囲内)の座標全て取得
+export function getLine(putPos: Position, key: DirectionKey): Position[] {
+  const line: Position[] = [];
+  const dire = DIRECTIONS[key];
+  let position = { x: putPos.x + dire.x, y: putPos.y + dire.y };
 
-  while (isBoardRange({ x: x, y: y })) {
-    line.push({ x: x, y: y });
-
-    x += dire.x;
-    y += dire.y;
+  while (hasBoardRange(position)) {
+    line.push(position);
+    position = { x: position.x + dire.x, y: position.y + dire.y };
   }
 
   return line;
@@ -62,15 +77,15 @@ export function diskCount(board: Board): { whiteCount: number, blackCount: numbe
 }
 
 // 指定した場所が置ける場所か
-export function canPut(board: Board, pos: Pair, myDisk: Disk): boolean {
+export function canPut(board: Board, pos: Position, myDisk: Disk): boolean {
   const reverseList = getReverseList(board, pos, myDisk);
   return board[pos.y][pos.x] === 'None' && reverseList.length > 0;
 }
 
 // パスしないといけないかチェック
 export function pass(board: Board, myDisk: Disk): boolean {
-  for (let y = 0; y < board.length; y++) {
-    for (let x = 0; x < board[y].length; x++) {
+  for (const y of BOARD_RANGE) {
+    for (const x of BOARD_RANGE) {
       if (board[y][x] !== 'None') continue;
 
       const reverseList = getReverseList(board, { x: x, y: y }, myDisk);
@@ -79,40 +94,33 @@ export function pass(board: Board, myDisk: Disk): boolean {
       }
     }
   }
-
   return true;
 }
 
 // ひっくり返す位置のリストを返す
-export function getReverseList(board: Board, putPosition: Pair, myDisk: Disk) {
-  const reverseList: Pair[][] = [];
+export function getReverseList(board: Board, putPosition: Position, myDisk: Disk) {
+  const reverseList: Position[][] = [];
+  const rival = rivalDisk(myDisk);
 
-  if (!isBoardRange(putPosition)) {
-    throw new Error('not board range');
-  }
+  // 置いた場所から8方向のライン座標をチェック
+  for (const line of DIRECTION_KEYS.map(key => getLine(putPosition, key))) {
+    const list: Position[] = [];
 
-  // 置いた場所から8方向のラインの座標をチェック
-  for (const line of directions.map(dire => getLine(putPosition, dire))) {
-    const list: Pair[] = [];
-
+    // 1ラインずつチェック
     for (let i = 0; i < line.length; i++) {
       const position = line[i];
-      const lineDisk = board[position.y][position.x]; // ライン上にある石
-
-      const rival = rivalDisk(myDisk);
+      const nextDisk = board[position.y][position.x];
 
       // 1ラインでひっくり返すものがない
-      if (lineDisk === 'None' ||
-        (i === 0 && lineDisk === myDisk) ||
-        (i === line.length - 1 && lineDisk === rival)) {
+      if (nextDisk === 'None' ||
+        (i === 0 && nextDisk === myDisk) ||
+        (i === line.length - 1 && nextDisk === rival)) {
         break;
       }
 
-      if (lineDisk === rival) {
-        list.push(position);
-      }
+      if (nextDisk === rival) list.push(position);
 
-      if (lineDisk === myDisk) {
+      if (nextDisk === myDisk) {
         reverseList.push(list);
         break;
       }
@@ -123,11 +131,28 @@ export function getReverseList(board: Board, putPosition: Pair, myDisk: Disk) {
 }
 
 // ボード、ひっくり返す位置、自分の色を渡して、ひっくり返したあとのボードを返す
-export function reverse(board: Board, reverseList: Pair[], myDisk: Disk): Board {
-  const newBoard = board.slice();
+export function reverse(board: Board, reverseList: Position[], myDisk: Disk): Board {
+  const newBoard: Board = cloneBoard(board);
   for (const position of reverseList) {
     newBoard[position.y][position.x] = myDisk;
   }
 
   return newBoard;
+}
+
+function hasBoardRange(position: { x: number, y: number }): position is Position {
+  return position.x in BOARD_RANGE && position.y in BOARD_RANGE;
+}
+
+export function cloneBoard(board: Board): Board {
+  return [
+    [...board[0]],
+    [...board[1]],
+    [...board[2]],
+    [...board[3]],
+    [...board[4]],
+    [...board[5]],
+    [...board[6]],
+    [...board[7]],
+  ];
 }
